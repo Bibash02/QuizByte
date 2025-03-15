@@ -1,0 +1,76 @@
+-- Create the database
+CREATE DATABASE IF NOT EXISTS quiz_app;
+
+-- Use the database
+USE quiz_app;
+
+-- Create the users table
+CREATE TABLE IF NOT EXISTS users (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create the quizzes table
+CREATE TABLE IF NOT EXISTS quizzes (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    description TEXT NULL,
+    time_limit ENUM('no_limit', 'per_question', 'entire_quiz') DEFAULT 'no_limit',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('Active', 'Draft') NOT NULL DEFAULT 'Draft',
+    total_questions INT(11) DEFAULT 0
+);
+
+-- Create the questions table
+CREATE TABLE IF NOT EXISTS questions (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    quiz_id INT(11) NOT NULL,
+    question_text TEXT NOT NULL,
+    correct_option INT(11) NOT NULL DEFAULT 0,
+    FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE
+);
+
+-- Create the quiz_questions table
+CREATE TABLE IF NOT EXISTS quiz_questions (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    question TEXT NOT NULL,
+    option1 VARCHAR(255) NOT NULL,
+    option2 VARCHAR(255) NOT NULL,
+    option3 VARCHAR(255) NOT NULL,
+    option4 VARCHAR(255) NOT NULL,
+    correct_option INT(11) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    explanation TEXT NULL,
+    quiz_id INT(11) NULL,
+    FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE
+);
+
+-- Create the quiz_options table
+CREATE TABLE IF NOT EXISTS options (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    question_id INT(11) NOT NULL,
+    option_text TEXT NOT NULL,
+    is_correct TINYINT(1) DEFAULT 0,
+    FOREIGN KEY (question_id) REFERENCES quiz_questions(id) ON DELETE CASCADE
+);
+
+-- Create the results table
+CREATE TABLE IF NOT EXISTS results (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    user_id INT(11) NOT NULL,
+    quiz_id INT(11) NOT NULL,
+    question_id INT(11) NOT NULL,
+    score INT(11) NOT NULL,
+    attempted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE,
+    FOREIGN KEY (question_id) REFERENCES quiz_questions(id) ON DELETE CASCADE
+);
+
+
+
